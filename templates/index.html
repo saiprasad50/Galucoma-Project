@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Glaucoma Detector | 3D UI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <style>
+        /* 1. Transparent Body with 3D Graphics and Scatter Dots */
+        body {
+            /* Fallback background for older browsers */
+            background-color: #000000;
+            /* Gradient for a deeper, modern look */
+            background: linear-gradient(135deg, #1f0b4d 0%, #000000 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden; /* Hide overflow from animations */
+        }
+        
+        /* Graphics Layer: Scatter Dots and 3D Effect */
+        .graphics-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            /* Subtle parallax/3D effect on scroll/movement */
+            perspective: 1000px; 
+        }
+
+        /* Create a pseudo-element for the animated dots/grid */
+        .graphics-layer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* Repeating gradient for a scatter dot/grid effect */
+            background-image: radial-gradient(#6c757d 1px, transparent 1px);
+            background-size: 20px 20px;
+            opacity: 0.1; /* Very subtle */
+            animation: moveDots 60s linear infinite; /* Slow movement */
+        }
+
+        @keyframes moveDots {
+            from { background-position: 0 0; }
+            to { background-position: 100% 100%; }
+        }
+
+        /* 2. Main Container (Glassmorphism Effect) */
+        .container {
+            position: relative;
+            z-index: 10; /* Bring container to the front */
+            max-width: 600px;
+            padding: 40px; /* Increased padding */
+            /* Glassmorphism/Transparent Effect */
+            background-color: rgba(255, 255, 255, 0.1); /* Semi-transparent white */
+            backdrop-filter: blur(10px); /* The "glass" blur effect */
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.3); /* Light border */
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            /* 3D Tilt Effect on Hover */
+            transition: transform 0.3s ease-in-out;
+            transform-style: preserve-3d;
+        }
+
+        /* Hover effect for a touch of 3D */
+        .container:hover {
+            transform: rotateX(1deg) rotateY(1deg) scale(1.02);
+        }
+
+        /* Heading Style */
+        .text-primary {
+            color: #00bcd4 !important; /* Brighter accent color */
+            text-shadow: 0 0 10px rgba(0, 188, 212, 0.5); /* Subtle glow */
+        }
+
+        /* Result Boxes (Main Logic preserved) */
+        .result-box {
+            padding: 25px;
+            margin-top: 25px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: bold;
+            /* Ensure text is readable on the transparent background */
+            color: #fff;
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent dark box */
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease-in-out;
+        }
+        
+        /* Glaucoma Result Style */
+        .glaucoma {
+            background-color: rgba(189, 8, 8, 0.7); /* Deep red transparency */
+            border: 2px solid #ff4d4d;
+            box-shadow: 0 0 15px #ff4d4d;
+        }
+        /* Normal Result Style */
+        .normal {
+            background-color: rgba(0, 150, 0, 0.7); /* Deep green transparency */
+            border: 2px solid #66ff66;
+            box-shadow: 0 0 15px #66ff66;
+        }
+        
+        /* Preloader Styles */
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000000;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease;
+        }
+        .progress-bar-container {
+            width: 80%;
+            max-width: 400px;
+            background-color: #333;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+        #loading-bar {
+            height: 25px;
+            width: 0%;
+            background-color: #00bcd4;
+            transition: width 0.1s linear;
+        }
+        #loading-text {
+            color: #00bcd4;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+    </style>
+</head>
+<body>
+
+<div id="preloader">
+    <div id="loading-text">Loading... 0%</div>
+    <div class="progress-bar-container">
+        <div id="loading-bar"></div>
+    </div>
+</div>
+
+<div class="graphics-layer"></div>
+
+<div class="container">
+    <h1 class="text-center mb-4 text-primary">👁️ Glaucoma Detector</h1>
+    <p class="text-center mb-4 text-light" style="opacity:0.8;">Upload a clear Eye Fundus Image to check for signs of glaucoma.</p>
+
+    <form method="post" enctype="multipart/form-data" class="mb-4">
+        <div class="input-group">
+            <input type="file" name="file" class="form-control" id="inputGroupFile" required>
+            <button class="btn btn-primary" type="submit" id="uploadButton" style="background-color:#00bcd4; border-color:#00bcd4;">
+                <i class="fas fa-upload me-2"></i> Upload & Detect
+            </button>
+        </div>
+    </form>
+
+    {% if result %}
+    <hr style="border-top: 1px solid rgba(255, 255, 255, 0.3);">
+    
+    <div class="result-box 
+        {% if 'Glaucoma' in result %}glaucoma{% else %}normal{% endif %}">
+        
+        <h2 class="h4">Detection Result:</h2>
+        
+        <p class="mb-0 fs-3 fw-bold">
+            {{ result }}
+        </p>
+
+    </div>
+    {% endif %}
+    
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const preloader = document.getElementById('preloader');
+        const loadingBar = document.getElementById('loading-bar');
+        const loadingText = document.getElementById('loading-text');
+        let width = 0;
+        const interval = setInterval(() => {
+            if (width >= 100) {
+                clearInterval(interval);
+                // Fade out and remove the preloader once loaded
+                preloader.style.opacity = '0';
+                setTimeout(() => {
+                    preloader.style.display = 'none';
+                }, 500); // Match CSS transition duration
+            } else {
+                width++;
+                loadingBar.style.width = width + '%';
+                loadingText.textContent = `Loading... ${width}%`;
+            }
+        }, 30); // Speed of the loading bar (adjust as needed)
+    });
+</script>
+
+</body>
+</html>
